@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Enable to write static route in interfaces(5) simply.
+# 
+# Example:
+#
+# # add only one route, use "route" keyword.
+# auto eth0
+# iface eth0 inet
+#     address 192.168.0.1/24
+#     route 192.168.1.0/24 via 192.168.0.254
+#
+# # add more then one routes, use "route-${number}" keyword.
+# auto eth1
+# iface eth1 inet
+#     address 192.168.2.1/24
+#     route-1 192.168.3.0/24 via 192.168.2.3
+#     route-2 192.168.4.0/24 via 192.168.2.4
+#     route-3 192.168.5.0/24 via 192.168.2.5
+
+case "${MODE}" in start)
+    case "${PHASE}" in post-up)
+        export | while read declare x line; do
+            case "${line}" in IF_ROUTE=*|IF_ROUTE_[0-9]*)
+                ip route replace $(eval echo ${line#*=}) dev $IFACE ;;
+            esac
+        done ;;
+    esac ;;
+esac
